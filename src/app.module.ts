@@ -10,16 +10,11 @@ import { AdminModule } from './admin/admin.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { ScoresModule } from './scores/scores.module';
 import { VideosModule } from './videos/videos.module';
-
-
-// JWT
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
 import { GamesModule } from './game/games.module';
 
-
-// Firebase Admin
-import * as admin from 'firebase-admin';
+// JWT & Config
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -39,12 +34,4 @@ import * as admin from 'firebase-admin';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  constructor() {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-      });
-    }
-  }
-}
+export class AppModule {}
