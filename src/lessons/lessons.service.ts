@@ -1,16 +1,14 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import * as admin from 'firebase-admin';
-import { Lesson } from './lesson.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { arrayUnion } from 'firebase/firestore'; 
 import { randomUUID } from 'crypto';
+import { Lesson } from './lesson.entity';
+import { admin, db } from '../firebase';
 
 @Injectable()
 export class LessonsService {
-  private db = admin.firestore();
-  private lessonsCollection = this.db.collection('lessons');
+  private lessonsCollection = db.collection('lessons');
 
   async create(data: Lesson): Promise<Lesson> {
     const docRef = this.lessonsCollection.doc();
@@ -51,14 +49,13 @@ export class LessonsService {
     await this.lessonsCollection.doc(id).delete();
   }
 
-  // Format title
   private formatTitle(id: string): string {
     return id
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
-  // KEYPOINT
+  // --- KEYPOINTS ---
   async addKeypoint(lessonId: string, content: string) {
     const lessonDoc = this.lessonsCollection.doc(lessonId);
     const keypointId = randomUUID();
@@ -103,7 +100,7 @@ export class LessonsService {
     await doc.update({ keypoints: lesson.keypoints });
   }
 
-  // QUESTION
+  // --- QUESTIONS ---
   async addQuestion(lessonId: string, data: any) {
     const lessonDoc = this.lessonsCollection.doc(lessonId);
     const questionId = randomUUID();
@@ -167,9 +164,9 @@ export class LessonsService {
     await doc.update({ questions: lesson.questions });
   }
 
-  // SUBMIT SCORE
+  // --- SUBMIT SCORE ---
   async submitLessonScore(lessonId: string, schoolId: string, answers: any): Promise<void> {
-    const scoresCollection = this.db.collection('scores');
+    const scoresCollection = db.collection('scores');
     const docId = `${lessonId}_${schoolId}`;
     const scoreDoc = await scoresCollection.doc(docId).get();
 
@@ -199,7 +196,7 @@ export class LessonsService {
     });
   }
 
-  // Enable & Difficulty
+  // --- ENABLE + DIFFICULTY ---
   async updateLessonEnableStatus(id: string, isEnabled: boolean): Promise<void> {
     const lessonRef = this.lessonsCollection.doc(id);
     await lessonRef.update({ isEnabled });
@@ -211,15 +208,14 @@ export class LessonsService {
   }
 
   async getScoreByLessonAndSchool(lessonId: string, schoolId: string) {
-    const scoresCollection = this.db.collection('scores');
+    const scoresCollection = db.collection('scores');
     const docId = `${lessonId}_${schoolId}`;
     const scoreDoc = await scoresCollection.doc(docId).get();
-  
+
     if (!scoreDoc.exists) {
       return null;
     }
-  
+
     return scoreDoc.data();
   }
-  
 }

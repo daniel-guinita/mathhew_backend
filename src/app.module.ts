@@ -20,7 +20,6 @@ import { GamesModule } from './game/games.module';
 
 // Firebase Admin
 import * as admin from 'firebase-admin';
-import * as serviceAccount from '../math-75c23-firebase-adminsdk-fbsvc-b37ecf0812.json'; //
 
 @Module({
   imports: [
