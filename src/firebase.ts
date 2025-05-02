@@ -1,13 +1,26 @@
 /* eslint-disable prettier/prettier */
 import * as admin from 'firebase-admin';
-import { cert } from 'firebase-admin/app';
 
-import * as serviceAccount from '../math-75c23-firebase-adminsdk-fbsvc-b37ecf0812.json'; // adjust path if needed
+const base64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
 
-admin.initializeApp({
-  credential: cert(serviceAccount as admin.ServiceAccount),
-});
+if (!base64) {
+  console.error('❌ FIREBASE_SERVICE_ACCOUNT_BASE64 is not set.');
+  throw new Error('FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable is not set.');
+}
+
+try {
+  const decoded = Buffer.from(base64, 'base64').toString('utf-8');
+  const serviceAccount = JSON.parse(decoded);
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+
+  console.log('✅ Firebase initialized successfully.');
+} catch (error) {
+  console.error('❌ Error initializing Firebase:', error);
+  throw error;
+}
 
 const db = admin.firestore();
-
-export { db, admin };
+export { admin, db };
